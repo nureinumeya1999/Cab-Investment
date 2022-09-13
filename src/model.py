@@ -12,10 +12,6 @@ with open('regression_dataset.pkl', 'rb') as f:
 with open('queryData.json', 'r') as f:
     queryData = json.load(f)
 
-
-
-
-
 def train(X, y, path):
     regressor = LinearRegression()
 
@@ -40,13 +36,25 @@ def generate_models():
                 data = dataset.query(query)
                 
                 X = data.iloc[:, :-1]
-                X.drop(columns=['Year', 'Quarter'], inplace=True)
+                X.drop(columns=['Year', 'Quarter', 'Gender', 'Salary Group', 'Age Group'], inplace=True)
                 y = data['Profit']
                 train(X, y, MODEL_PATH)
+
+
+def predict(input):
+    company, quarter, city = input[0], input[1], input[2]
+    path = os.path.join('models', company, quarter, city)
+    with open(path, 'rb') as f:
+        model = pickle.load(f)
+
+    companyID, quarterID, cityID = queryData['company'][company], queryData['quarter'][quarter], queryData['city'][city]
+    print(model.predict([input]))
 
 if __name__ == '__main__':
     generate_models()
 
-# Loading model to compare the results
+        
 
-# print(model.predict([[2, 2200, 5]]))
+    # Loading model to compare the results
+
+    # print(model.predict([[2, 2200, 5]]))
