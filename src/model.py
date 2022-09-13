@@ -5,6 +5,7 @@ import pickle
 import json
 from sklearn.linear_model import LinearRegression
 import os
+from datetime import date 
 
 with open('regression_dataset.pkl', 'rb') as f:
     dataset = pickle.load(f)
@@ -41,17 +42,25 @@ def generate_models():
                 train(X, y, MODEL_PATH)
 
 
-def predict(input):
-    company, quarter, city = input[0], input[1], input[2]
-    path = os.path.join('models', company, quarter, city)
+def predict(_company, _year, _month, _day, _city):
+    company, yr, m, d, city = _company, _year, _month, _day, _city
+
+    
+    start = date(1900,1,1) 
+    end = date(yr, m, d)
+    days = (end - start).days
+
+    quarter = (end.month - 1) // 3 + 1
+
+    path = os.path.join('models', company, str(quarter), city)
     with open(path, 'rb') as f:
         model = pickle.load(f)
 
-    companyID, quarterID, cityID = queryData['company'][company], queryData['quarter'][quarter], queryData['city'][city]
-    print(model.predict([input]))
+    companyID, cityID = queryData['company'][company],  queryData['city'][city]
+    return model.predict([days, companyID, cityID])
 
 if __name__ == '__main__':
-    generate_models()
+    print(predict('Pink Cab', 2022, 4, 8, 'NEW YORK NY'))
 
         
 
