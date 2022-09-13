@@ -1,11 +1,9 @@
 # Importing the libraries
-import numpy as np
-import pandas as pd
 import pickle
 import json
 from sklearn.linear_model import LinearRegression
 import os
-from datetime import date 
+import numpy as np
 
 with open('regression_dataset.pkl', 'rb') as f:
     dataset = pickle.load(f)
@@ -23,7 +21,6 @@ def train(X, y, path):
     pickle.dump(regressor, open(os.path.join(path, 'model.pkl'),'wb'))
 
 
-
 def generate_models():
     for company in queryData['company']:
         _company = queryData['company'][company]
@@ -38,24 +35,21 @@ def generate_models():
                 data = dataset.query(query).groupby('Year', as_index=True).sum()
                 X = data.index
                 y = data['Profit']
-                train([X], [y], MODEL_PATH)
+                train(np.reshape(X, (-1, 1)), y, MODEL_PATH)
 
 
-def predict(company, year, month, day, city):
+def predict(company, year, quarter, city):
 
-    date = date(year, month, day)
-
-    quarter = (date.month - 1) // 3 + 1
-
-    path = os.path.join('models', company, str(quarter), city)
+    cwd = os.getcwd()
+    path = os.path.join(cwd, 'models', company, str(quarter), city, 'model.pkl')
     with open(path, 'rb') as f:
         model = pickle.load(f)
+    return model.predict([[year]])
 
-    return model.predict([date.year])
 
-if __name__ == '__main__':
-    generate_models()
-    #print(predict('Pink Cab', 2022, 4, 8, 'NEW YORK NY'))
+#generate_models()
+for result in predict('Yellow Cab', 2022, 4, 'NEW YORK NY'):
+    print(result)
 
         
 
