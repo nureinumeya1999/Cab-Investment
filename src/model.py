@@ -48,14 +48,15 @@ def generate_overalls():
             train(np.reshape(X, (-1, 1)), y, MODEL_PATH)
 
 
-def predict(company, year, quarter, city):
+def predict(company, year, quarter, location):
 
     cwd = os.getcwd()
-    path = os.path.join(cwd, 'models', company, str(quarter), city, 'model.pkl')
+    path = os.path.join(cwd, 'models', company, str(quarter), location, 'model.pkl')
     with open(path, 'rb') as f:
         model = pickle.load(f)
     return model.predict([[year]])
 
 
-for result in predict('Yellow Cab', 2022, 4, 'NEW YORK NY'):
-    print(result)
+for location in queryData['city']:
+    for result in predict('Yellow Cab', 2022, 4, location):
+        print(result)
