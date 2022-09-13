@@ -48,7 +48,7 @@ def generate_overalls():
             train(np.reshape(X, (-1, 1)), y, MODEL_PATH)
 
 
-def predict(company, year, quarter, location):
+def model_predict(company, year, quarter, location):
 
     cwd = os.getcwd()
     path = os.path.join(cwd, 'models', company, str(quarter), location, 'model.pkl')
@@ -57,6 +57,6 @@ def predict(company, year, quarter, location):
     return model.predict([[year]])
 
 
-for location in queryData['city']:
-    for result in predict('Yellow Cab', 2022, 4, location):
-        print(result)
+#for location in queryData['city']:
+ #   for result in predict('Yellow Cab', 2022, 4, location):
+  #      print(result)

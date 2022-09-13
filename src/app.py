@@ -1,9 +1,8 @@
 import numpy as np
 from flask import Flask, request,render_template
-import pickle
+from model import model_predict
 
 app = Flask(__name__)
-model = pickle.load(open('model.pkl', 'rb'))
 
 @app.route('/')
 def home():
@@ -14,13 +13,17 @@ def predict():
     '''
     For rendering results on HTML GUI
     '''
-    int_features = [int(x) for x in request.form.values()]
-    final_features = [np.array(int_features)]
-    prediction = model.predict(final_features)
+    l = [x for x in request.form.values()]
+    company = l[0]
+    year = int(l[3])
+    quarter = int(l[2])
+    location = l[1]
+
+    prediction = model_predict(company, year, quarter, location)
 
     output = round(prediction[0], 2)
 
-    return render_template('index.html', prediction_text='Quarter profits should be $ {}'.format(output))
+    return render_template('index.html', prediction_text=f'Quarter profits should be $USD {output}')
 
 if __name__ == "__main__":
     app.run(debug=True)
