@@ -1,11 +1,52 @@
+# Importing the libraries
+import numpy as np
 import pandas as pd
 import pickle
-from sklearn.model_selection import train_test_split
+import json
 from sklearn.linear_model import LinearRegression
+import os
 
-cabData = pd.read_csv('DataSets/Cab_Data.csv')
-cityData = pd.read_csv('DataSets/Cab_Data.csv')
-customerData = pd.read_csv('DataSets/Cab_Data.csv')
-transactionData = pd.read_csv('DataSets/Cab_Data.csv')
+with open('regression_dataset.pkl', 'rb') as f:
+    dataset = pickle.load(f)
+
+with open('queryData.json', 'r') as f:
+    queryData = json.load(f)
 
 
+
+
+
+def train(X, y, path):
+    regressor = LinearRegression()
+
+    #Fitting model with trainig data
+    regressor.fit(X, y)
+
+    # Saving model to disk
+    pickle.dump(regressor, open(os.path.join(path, 'model.pkl'),'wb'))
+
+
+
+def generate_models():
+    for company in queryData['company']:
+        _company = queryData['company'][company]
+        for city in queryData['city']:
+            _city = queryData['city'][city]
+            for quarter in queryData['quarter']:
+                _quarter = queryData['quarter'][quarter]
+
+                MODEL_PATH = os.path.join('models', company, quarter, city)
+                query = f'Company == {_company} & City == {_city} & Quarter == {_quarter}'
+                data = dataset.query(query)
+                
+                X = data.iloc[:, :-1]
+                X.drop(columns=['Year', 'Quarter'], inplace=True)
+                y = data['Profit']
+                train(X, y, MODEL_PATH)
+
+if __name__ == '__main__':
+    generate_models()
+
+# Loading model to compare the results
+
+# print(model.predict([[2, 2200, 5]]))
