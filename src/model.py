@@ -34,33 +34,28 @@ def generate_models():
 
                 MODEL_PATH = os.path.join('models', company, quarter, city)
                 query = f'Company == {_company} & City == {_city} & Quarter == {_quarter}'
-                data = dataset.query(query)
-                
-                X = data.iloc[:, :-1]
-                X.drop(columns=['Year', 'Quarter', 'Gender', 'Salary Group', 'Age Group'], inplace=True)
+            
+                data = dataset.query(query).groupby('Year', as_index=True).sum()
+                X = data.index
                 y = data['Profit']
-                train(X, y, MODEL_PATH)
+                train([X], [y], MODEL_PATH)
 
 
-def predict(_company, _year, _month, _day, _city):
-    company, yr, m, d, city = _company, _year, _month, _day, _city
+def predict(company, year, month, day, city):
 
-    
-    start = date(1900,1,1) 
-    end = date(yr, m, d)
-    days = (end - start).days
+    date = date(year, month, day)
 
-    quarter = (end.month - 1) // 3 + 1
+    quarter = (date.month - 1) // 3 + 1
 
     path = os.path.join('models', company, str(quarter), city)
     with open(path, 'rb') as f:
         model = pickle.load(f)
 
-    companyID, cityID = queryData['company'][company],  queryData['city'][city]
-    return model.predict([days, companyID, cityID])
+    return model.predict([date.year])
 
 if __name__ == '__main__':
-    print(predict('Pink Cab', 2022, 4, 8, 'NEW YORK NY'))
+    generate_models()
+    #print(predict('Pink Cab', 2022, 4, 8, 'NEW YORK NY'))
 
         
 
